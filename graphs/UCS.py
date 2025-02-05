@@ -1,8 +1,9 @@
 # UCS - Uniform Cost Search
 import os
+import heapq
+from typing import List, Dict
 
-from queue import PriorityQueue
-from utils import build_adjacency_list_uw
+from utils import Edge,build_adjacency_list_uw
 
 os.system("clear")
 
@@ -25,28 +26,29 @@ edges = [
 # print(edges)
 
 
-def traverse_UCS(nodes,edges,start:str,goal:str):
-    adjacency_list = build_adjacency_list_uw(nodes,edges)
-
-    pq = PriorityQueue()
-    pq.put((0,start))
+def traverse_UCS(graph:Dict[str, List[Edge]],start:str,goal:str):
+    pq  = [(0,start)]
+    visited = set([start])
     
-    visited_costs = {}
-    visited = ""
-    while not pq.empty():
-        cost,c_node = pq.get()
-        if c_node in visited_costs and visited_costs[c_node] <= cost:
-            continue
-        visited_costs[c_node] = cost
-        visited += c_node
+    visited_costs = {start:0}
+    parent = {start:None}
+    while pq:
+        c_cost,c_node = heapq.heappop(pq)
         if c_node == goal:
-            return [cost,visited]
-        for neighbor in adjacency_list[c_node]:
-          n_cost, n_node = neighbor
-          new_cost = cost + n_cost
-          if neighbor.node not in visited_costs or new_cost < visited_costs[neighbor.node]:
-            pq.put((new_cost,n_node))
+            path = []
+            while c_node is not None:
+              path.append(c_node)
+              c_node = parent[c_node]
+            return ["".join(path[::-1]),c_cost]
+        for n_cost, n_node in graph.get(c_node,[]):
+          new_cost = c_cost + n_cost
+          if n_node not in visited or new_cost < visited_costs[n_node]:
+            visited_costs[n_node] = new_cost
+            visited.add(n_node)
+            parent[n_node] = c_node
+            heapq.heappush(pq,(new_cost,n_node))
+    return float('inf')
 
+graph = build_adjacency_list_uw(nodes,edges)
 
-
-print(traverse_UCS(nodes,edges,"S","G"))
+print(traverse_UCS(graph,"S","G"))
