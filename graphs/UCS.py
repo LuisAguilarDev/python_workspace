@@ -3,7 +3,7 @@ import os
 import heapq
 from typing import List, Dict
 
-from utils import Edge,build_adjacency_list_uw
+from utils.index import Edge,build_adjacency_list_uw
 
 os.system("clear")
 
